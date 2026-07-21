@@ -96,6 +96,26 @@ enum WineStatus {
   SOLD_OUT
 }
 
+enum PartnerType {
+  CHEF
+  CATERING
+  DISTILLER
+  BREWER
+  TEQUILA_PRODUCER
+  WINE_PRODUCER
+  MIXOLOGIST
+  OTHER
+}
+
+enum PartnerProposalStatus {
+  SUBMITTED
+  IN_REVIEW
+  APPROVED
+  SCHEDULED
+  LAUNCHED
+  REJECTED
+}
+
 model User {
   id            String        @id @default(cuid())
   name          String
@@ -208,23 +228,51 @@ model ReservationService {
 }
 
 model Event {
-  id          String        @id @default(cuid())
-  name        String        @unique
-  description String?
-  type        String
-  startsAt    DateTime
-  endsAt      DateTime
-  capacity    Int
-  priceCents  Int           @default(0)
-  accessType  String        @default("RESERVATION_OR_INVITE")
-  imageUrl    String?
-  status      EventStatus   @default(DRAFT)
-  tickets     EventTicket[]
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  id                String           @id @default(cuid())
+  name              String           @unique
+  description       String?
+  type              String
+  startsAt          DateTime
+  endsAt            DateTime
+  capacity          Int
+  priceCents        Int              @default(0)
+  accessType        String           @default("RESERVATION_OR_INVITE")
+  imageUrl          String?
+  status            EventStatus      @default(DRAFT)
+  tickets           EventTicket[]
+  partnerProposalId String?
+  partnerProposal   PartnerProposal? @relation(fields: [partnerProposalId], references: [id])
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
 
   @@index([startsAt])
   @@index([status])
+}
+
+model PartnerProposal {
+  id                  String                @id @default(cuid())
+  brandName           String
+  contactName         String
+  contactEmail        String
+  contactPhone        String?
+  type                PartnerType
+  title               String
+  shortPitch          String
+  description         String
+  includes            String[]              @default([])
+  targetAudience      String?
+  suggestedPriceCents Int?
+  suggestedCapacity   Int?
+  preferredDates      String?
+  mediaUrl            String?
+  status              PartnerProposalStatus @default(SUBMITTED)
+  internalNotes       String?
+  events              Event[]
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+
+  @@index([status])
+  @@index([type])
 }
 
 model EventTicket {

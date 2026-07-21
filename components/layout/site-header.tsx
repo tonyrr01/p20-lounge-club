@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CalendarDays, LayoutDashboard, Wine } from "lucide-react";
+import { CalendarDays, Handshake, LayoutDashboard, Wine } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export function SiteHeader() {
@@ -17,6 +17,7 @@ export function SiteHeader() {
           <Link href="/admin/reservations">Reservas</Link>
           <Link href="/admin/events">Eventos</Link>
           <Link href="/admin/menu">Menu</Link>
+          <Link href="/partners">Alianzas</Link>
         </nav>
         <Button asChild className="gap-2">
           <Link href="/admin/reservations">
@@ -34,6 +35,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
     ["Dashboard", "/admin", LayoutDashboard],
     ["Reservas", "/admin/reservations", CalendarDays],
     ["Eventos", "/admin/events", Wine],
+    ["Alianzas", "/admin/partners", Handshake],
     ["Menu", "/admin/menu", Wine],
     ["Inventario", "/admin/inventory", Wine],
     ["Check-in", "/admin/access", CalendarDays]

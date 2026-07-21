@@ -70,3 +70,64 @@ export const products = [
   { name: "Espresso ejecutivo", category: "Cafe", stock: 120, min: 30, price: "$65" },
   { name: "Tabla de quesos", category: "Snacks", stock: 12, min: 6, price: "$460" }
 ];
+
+export const partnerTypes = [
+  "Chef privado",
+  "Catering",
+  "Destilador",
+  "Cervecero",
+  "Tequilero",
+  "Vinicola",
+  "Mixologia"
+];
+
+export const partnerProposals = [
+  {
+    brand: "Steinbock Rauchbier",
+    contact: "Maestro cervecero invitado",
+    type: "Cervecero",
+    title: "Catering de cerveza y tapas",
+    status: "Aprobada",
+    price: "$6,200",
+    capacity: "20-30 personas",
+    date: "Jueves o viernes after office",
+    includes: [
+      "3 horas de servicio con dos personas",
+      "Guia sobre estilo de cerveza y maridajes",
+      "Barril de 30 litros de cerveza artesanal",
+      "4 tapas por persona y 20 tapas extra"
+    ]
+  },
+  {
+    brand: "Casa Agave Alto",
+    contact: "Sommelier de tequila",
+    type: "Tequilero",
+    title: "Degustacion ejecutiva de tequila premium",
+    status: "En revision",
+    price: "$9,800",
+    capacity: "16 personas",
+    date: "Viernes privado",
+    includes: [
+      "Cata guiada de tres expresiones",
+      "Maridaje salado ligero",
+      "Historia de origen y proceso",
+      "Opcion de botella conmemorativa"
+    ]
+  },
+  {
+    brand: "Mesa Privada",
+    contact: "Chef invitado",
+    type: "Chef privado",
+    title: "Cena de cierre de negocio",
+    status: "Recibida",
+    price: "$2,400 pp",
+    capacity: "10-18 personas",
+    date: "Bajo reserva",
+    includes: [
+      "Menu de cuatro tiempos",
+      "Servicio en lounge completo",
+      "Maridaje opcional",
+      "Brief previo con anfitrion"
+    ]
+  }
+];

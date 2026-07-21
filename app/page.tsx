@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Beer, CalendarDays, Coffee, Martini, Sparkles, Wine } from "lucide-react";
+import { ArrowRight, Beer, CalendarDays, Coffee, Handshake, Martini, Sparkles, Wine } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { SiteHeader } from "@/components/layout/site-header";
@@ -34,6 +34,9 @@ export default function HomePage() {
               </Button>
               <Button asChild variant="ghost">
                 <Link href="/admin/menu">Ver menu</Link>
+              </Button>
+              <Button asChild variant="secondary">
+                <Link href="/partners">Alianzas</Link>
               </Button>
             </div>
           </div>
@@ -89,6 +92,30 @@ export default function HomePage() {
             <p className="mt-3 text-sm leading-6 text-marble/65">{copy}</p>
           </Card>
         ))}
+      </section>
+
+      <section className="border-t border-white/10 bg-[#151312]">
+        <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[.9fr_1.1fr]">
+          <div>
+            <Handshake className="size-8 text-champagne" />
+            <h2 className="mt-5 text-3xl font-semibold">Alianzas para experiencias privadas</h2>
+            <p className="mt-4 leading-7 text-marble/70">
+              Chefs, caterings, destiladores, cerveceros y tequileros pueden proponer
+              presentaciones para el lounge. P20 revisa, aprueba y lanza las mejores experiencias.
+            </p>
+          </div>
+          <Card className="shadow-none">
+            <p className="text-sm text-champagne">Nuevo canal de proveedores</p>
+            <h3 className="mt-3 text-2xl font-semibold">Cerveza y tapas, tequila premium, cenas con chef</h3>
+            <p className="mt-3 text-sm leading-6 text-marble/65">
+              Recibe propuestas con precio, cupo, montaje, personal incluido y materiales de marca
+              para convertirlas en eventos o paquetes reservables.
+            </p>
+            <Button asChild className="mt-5">
+              <Link href="/partners">Subir propuesta</Link>
+            </Button>
+          </Card>
+        </div>
       </section>
     </main>
   );

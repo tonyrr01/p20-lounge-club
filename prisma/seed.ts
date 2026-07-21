@@ -1,4 +1,4 @@
-import { PrismaClient, ProductType, UserRole } from "@prisma/client";
+import { PartnerProposalStatus, PartnerType, PrismaClient, ProductType, UserRole } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
@@ -180,6 +180,53 @@ async function main() {
       create: event
     });
   }
+
+  const beerTapasProposal = await prisma.partnerProposal.upsert({
+    where: { id: "steinbock-cerveza-tapas" },
+    update: {},
+    create: {
+      id: "steinbock-cerveza-tapas",
+      brandName: "Steinbock Rauchbier",
+      contactName: "Maestro cervecero invitado",
+      contactEmail: "alianzas@p20lounge.mx",
+      contactPhone: "+52 33 0000 0000",
+      type: PartnerType.BREWER,
+      title: "Catering de cerveza y tapas",
+      shortPitch: "Cata ejecutiva con barril artesanal ahumado, guia de maridaje y tapas preparadas en sitio.",
+      description:
+        "Experiencia de 3 horas para after office privado. Incluye dos personas de servicio, explicacion del estilo Rauchbier, barril de 30 litros, cuatro tapas por persona y stock extra de tapas.",
+      includes: [
+        "3 horas de servicio con dos personas",
+        "Guia sobre estilo de cerveza y maridajes",
+        "Barril de 30 litros de cerveza artesanal",
+        "4 tapas por persona y 20 tapas extra"
+      ],
+      targetAudience: "Ejecutivos, inquilinos Piso 20 y eventos corporativos privados",
+      suggestedPriceCents: 620000,
+      suggestedCapacity: 30,
+      preferredDates: "Jueves y viernes after office",
+      status: PartnerProposalStatus.APPROVED,
+      internalNotes: "Propuesta lista para lanzarse como experiencia de cerveza de barril y tapas."
+    }
+  });
+
+  await prisma.event.upsert({
+    where: { name: "Cerveza y tapas Steinbock" },
+    update: {
+      partnerProposalId: beerTapasProposal.id
+    },
+    create: {
+      name: "Cerveza y tapas Steinbock",
+      type: "Catering cervecero",
+      description: "Experiencia de cerveza artesanal ahumada, guia de maridaje y tapas.",
+      startsAt: new Date("2026-08-06T01:00:00.000Z"),
+      endsAt: new Date("2026-08-06T04:00:00.000Z"),
+      capacity: 30,
+      priceCents: 620000,
+      status: "PUBLISHED",
+      partnerProposalId: beerTapasProposal.id
+    }
+  });
 }
 
 main()
