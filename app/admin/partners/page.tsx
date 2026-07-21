@@ -1,4 +1,4 @@
-import { CheckCircle2, ExternalLink, Rocket, Users } from "lucide-react";
+import { Banknote, CheckCircle2, Clock, ExternalLink, Rocket, ShieldCheck, Users } from "lucide-react";
 import { approvePartnerProposal, launchPartnerProposal } from "@/app/admin/partners/actions";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -25,6 +25,14 @@ const typeLabels = {
   OTHER: "Otro"
 };
 
+const businessModelLabels = {
+  COMMISSION: "Comision",
+  VENUE_FEE: "Cuota lounge",
+  REVENUE_SHARE: "Revenue share",
+  PACKAGE_RESALE: "Reventa P20",
+  MINIMUM_GUARANTEE: "Garantia minima"
+};
+
 async function getPartnerProposals() {
   try {
     const proposals = await prisma.partnerProposal.findMany({
@@ -41,9 +49,20 @@ async function getPartnerProposals() {
       price: proposal.suggestedPriceCents
         ? `$${(proposal.suggestedPriceCents / 100).toLocaleString("es-MX")}`
         : "Por definir",
+      commercialModel: businessModelLabels[proposal.businessModel],
+      commission: proposal.commissionPercent ? `${proposal.commissionPercent}%` : "Por definir",
+      guarantee: proposal.minimumGuaranteeCents
+        ? `$${(proposal.minimumGuaranteeCents / 100).toLocaleString("es-MX")}`
+        : "Sin garantia",
       capacity: proposal.suggestedCapacity ? `${proposal.suggestedCapacity} personas` : "Por definir",
+      duration: proposal.serviceDurationMinutes ? `${proposal.serviceDurationMinutes} min` : "Por definir",
+      staff: proposal.staffCount ? `${proposal.staffCount} personas` : "Por definir",
+      leadTime: proposal.leadTimeDays ? `${proposal.leadTimeDays} dias` : "Por definir",
       date: proposal.preferredDates ?? "Bajo reserva",
       includes: proposal.includes.length ? proposal.includes : [proposal.shortPitch],
+      setupNeeds: proposal.setupNeeds ?? "Sin requerimientos capturados",
+      complianceNotes: proposal.complianceNotes ?? "Documentacion pendiente de validar",
+      menuPreview: proposal.menuPreview ?? proposal.shortPitch,
       canApprove: proposal.status !== "APPROVED" && proposal.status !== "LAUNCHED",
       canLaunch: proposal.status === "APPROVED" || proposal.status === "SCHEDULED"
     }));
@@ -51,6 +70,15 @@ async function getPartnerProposals() {
     return partnerProposals.map((proposal) => ({
       ...proposal,
       id: undefined,
+      commercialModel: "Comision",
+      commission: "20%",
+      guarantee: "Sin garantia",
+      duration: "180 min",
+      staff: "2 personas",
+      leadTime: "7 dias",
+      setupNeeds: "Montaje por validar",
+      complianceNotes: "Documentacion por validar",
+      menuPreview: proposal.includes.join(", "),
       canApprove: false,
       canLaunch: false
     }));
@@ -112,12 +140,42 @@ export default async function AdminPartnersPage() {
                     {proposal.status}
                   </span>
                 </div>
+                <div className="mt-4 grid gap-3 md:grid-cols-4">
+                  {[
+                    { label: "Modelo", value: proposal.commercialModel, Icon: Banknote },
+                    { label: "Comision", value: proposal.commission, Icon: Banknote },
+                    { label: "Duracion", value: proposal.duration, Icon: Clock },
+                    { label: "Staff", value: proposal.staff, Icon: Users }
+                  ].map(({ label, value, Icon }) => (
+                    <div key={label} className="rounded-md border border-white/10 bg-white/[0.03] p-3">
+                      <div className="flex items-center gap-2 text-xs text-marble/50">
+                        <Icon className="size-3.5 text-champagne" />
+                        {label}
+                      </div>
+                      <p className="mt-2 text-sm font-medium">{value}</p>
+                    </div>
+                  ))}
+                </div>
                 <div className="mt-4 grid gap-2 md:grid-cols-2">
                   {proposal.includes.map((item) => (
                     <div key={item} className="rounded-md bg-white/[0.04] p-3 text-sm text-marble/70">
                       {item}
                     </div>
                   ))}
+                </div>
+                <div className="mt-4 grid gap-3 lg:grid-cols-3">
+                  <div className="rounded-md bg-black/20 p-3 text-sm leading-6 text-marble/65">
+                    <p className="mb-1 text-xs uppercase tracking-[.18em] text-champagne">Operacion</p>
+                    {proposal.setupNeeds}
+                  </div>
+                  <div className="rounded-md bg-black/20 p-3 text-sm leading-6 text-marble/65">
+                    <p className="mb-1 text-xs uppercase tracking-[.18em] text-champagne">Compliance</p>
+                    {proposal.complianceNotes}
+                  </div>
+                  <div className="rounded-md bg-black/20 p-3 text-sm leading-6 text-marble/65">
+                    <p className="mb-1 text-xs uppercase tracking-[.18em] text-champagne">Lead time</p>
+                    {proposal.leadTime} · {proposal.guarantee}
+                  </div>
                 </div>
                 <div className="mt-4 flex flex-wrap gap-3">
                   <form action={approvePartnerProposal}>
@@ -150,14 +208,14 @@ export default async function AdminPartnersPage() {
         </Card>
 
         <Card className="h-fit">
-          <Users className="size-8 text-champagne" />
-          <h2 className="mt-5 text-xl font-semibold">Checklist de revision</h2>
+          <ShieldCheck className="size-8 text-champagne" />
+          <h2 className="mt-5 text-xl font-semibold">Scorecard de revision</h2>
           <div className="mt-4 space-y-3 text-sm text-marble/68">
-            <p>Precio, margen y formato comercial.</p>
-            <p>Cupo, duracion, staff y montaje.</p>
-            <p>Requerimientos de barra, cocina, cava o equipo.</p>
-            <p>Materiales de marca y evidencia visual.</p>
-            <p>Fecha tentativa y disponibilidad del lounge.</p>
+            <p>Margen: comision, revenue share, garantia minima o reventa.</p>
+            <p>Operabilidad: cupo, duracion, staff, montaje y lead time.</p>
+            <p>Riesgo: permisos, seguro, alcohol, alimentos y cancelacion.</p>
+            <p>Demanda: audiencia, narrativa, ticket promedio y materiales.</p>
+            <p>Lanzamiento: fecha tentativa, capacidad y disponibilidad del lounge.</p>
           </div>
         </Card>
       </div>

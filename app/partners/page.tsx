@@ -1,10 +1,46 @@
 import Link from "next/link";
-import { Beer, ChefHat, ClipboardCheck, Gem, Martini, Megaphone, Wine } from "lucide-react";
+import {
+  BadgeCheck,
+  Banknote,
+  Beer,
+  CalendarCheck,
+  ChefHat,
+  ClipboardCheck,
+  Gem,
+  Martini,
+  Megaphone,
+  ShieldCheck,
+  Wine
+} from "lucide-react";
 import { PartnerProposalForm } from "@/components/forms/partner-proposal-form";
 import { SiteHeader } from "@/components/layout/site-header";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { partnerTypes } from "@/features/admin/demo-data";
+
+const commercialModels = [
+  {
+    title: "Comision por venta",
+    description: "P20 genera demanda y retiene un porcentaje por reservas cerradas."
+  },
+  {
+    title: "Reventa de paquete",
+    description: "El proveedor entrega precio neto y P20 publica un paquete con margen propio."
+  },
+  {
+    title: "Garantia minima",
+    description: "Se protege al proveedor con un minimo y P20 captura upside por ocupacion."
+  }
+];
+
+const reviewCriteria = [
+  "Margen y ticket promedio",
+  "Calidad visual y narrativa de marca",
+  "Staff, duracion y montaje",
+  "Permisos, seguro y manejo responsable",
+  "Disponibilidad y tiempo de anticipacion",
+  "Potencial para eventos privados o corporativos"
+];
 
 export default function PartnersPage() {
   return (
@@ -40,6 +76,11 @@ export default function PartnersPage() {
               El equipo P20 revisa concepto, precio, cupo, montaje y calendario. Las propuestas
               aprobadas se convierten en eventos o paquetes publicables.
             </p>
+            <div className="mt-5 grid grid-cols-3 gap-2 text-center text-xs text-marble/60">
+              <span className="rounded-md bg-white/[0.06] p-2">Aprobacion</span>
+              <span className="rounded-md bg-white/[0.06] p-2">Calendario</span>
+              <span className="rounded-md bg-white/[0.06] p-2">Lanzamiento</span>
+            </div>
           </Card>
         </div>
       </section>
@@ -59,6 +100,18 @@ export default function PartnersPage() {
             </p>
           </Card>
         ))}
+      </section>
+
+      <section className="border-y border-white/10 bg-[#11100f]">
+        <div className="mx-auto grid max-w-7xl gap-5 px-4 py-12 sm:px-6 lg:grid-cols-3">
+          {commercialModels.map((model) => (
+            <Card key={model.title} className="shadow-none">
+              <Banknote className="size-7 text-champagne" />
+              <h2 className="mt-5 text-xl font-semibold">{model.title}</h2>
+              <p className="mt-2 text-sm leading-6 text-marble/65">{model.description}</p>
+            </Card>
+          ))}
+        </div>
       </section>
 
       <section className="border-y border-white/10 bg-[#191715]">
@@ -82,15 +135,37 @@ export default function PartnersPage() {
       </section>
 
       <section id="propuesta" className="mx-auto grid max-w-7xl gap-6 px-4 py-12 sm:px-6 lg:grid-cols-[1fr_1.2fr]">
-        <Card className="h-fit shadow-none">
-          <ClipboardCheck className="size-8 text-champagne" />
-          <h2 className="mt-5 text-2xl font-semibold">Flujo de aprobacion</h2>
-          <div className="mt-5 space-y-4 text-sm leading-6 text-marble/68">
-            <p>1. El proveedor sube su propuesta con precio, cupo, montaje y materiales.</p>
-            <p>2. Admin Lounge revisa calidad, operacion, margen y disponibilidad.</p>
-            <p>3. La propuesta aprobada se agenda y se lanza como evento, paquete o experiencia privada.</p>
-          </div>
-        </Card>
+        <div className="space-y-5">
+          <Card className="shadow-none">
+            <ClipboardCheck className="size-8 text-champagne" />
+            <h2 className="mt-5 text-2xl font-semibold">Flujo de aprobacion</h2>
+            <div className="mt-5 space-y-4 text-sm leading-6 text-marble/68">
+              <p>1. El proveedor sube su propuesta con precio, cupo, montaje y materiales.</p>
+              <p>2. Admin Lounge revisa calidad, operacion, margen, compliance y disponibilidad.</p>
+              <p>3. La propuesta aprobada se agenda y se lanza como evento, paquete o experiencia privada.</p>
+            </div>
+          </Card>
+          <Card className="shadow-none">
+            <ShieldCheck className="size-8 text-champagne" />
+            <h2 className="mt-5 text-2xl font-semibold">Criterios de seleccion</h2>
+            <div className="mt-5 grid gap-2">
+              {reviewCriteria.map((criteria) => (
+                <div key={criteria} className="flex items-center gap-3 rounded-md bg-white/[0.04] p-3 text-sm text-marble/70">
+                  <BadgeCheck className="size-4 text-champagne" />
+                  {criteria}
+                </div>
+              ))}
+            </div>
+          </Card>
+          <Card className="shadow-none">
+            <CalendarCheck className="size-8 text-champagne" />
+            <h2 className="mt-5 text-2xl font-semibold">Que puede lanzar P20</h2>
+            <div className="mt-5 grid gap-2 text-sm text-marble/68">
+              <p>Eventos con boleto, experiencias privadas bajo reserva y paquetes para anfitriones corporativos.</p>
+              <p>Las mejores propuestas pueden operar como proveedor preferente del lounge.</p>
+            </div>
+          </Card>
+        </div>
         <PartnerProposalForm />
       </section>
     </main>

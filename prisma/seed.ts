@@ -1,4 +1,11 @@
-import { PartnerProposalStatus, PartnerType, PrismaClient, ProductType, UserRole } from "@prisma/client";
+import {
+  PartnerBusinessModel,
+  PartnerProposalStatus,
+  PartnerType,
+  PrismaClient,
+  ProductType,
+  UserRole
+} from "@prisma/client";
 import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
@@ -181,32 +188,46 @@ async function main() {
     });
   }
 
+  const beerTapasProposalData = {
+    brandName: "Steinbock Rauchbier",
+    contactName: "Maestro cervecero invitado",
+    contactEmail: "alianzas@p20lounge.mx",
+    contactPhone: "+52 33 0000 0000",
+    type: PartnerType.BREWER,
+    title: "Catering de cerveza y tapas",
+    shortPitch: "Cata ejecutiva con barril artesanal ahumado, guia de maridaje y tapas preparadas en sitio.",
+    description:
+      "Experiencia de 3 horas para after office privado. Incluye dos personas de servicio, explicacion del estilo Rauchbier, barril de 30 litros, cuatro tapas por persona y stock extra de tapas.",
+    includes: [
+      "3 horas de servicio con dos personas",
+      "Guia sobre estilo de cerveza y maridajes",
+      "Barril de 30 litros de cerveza artesanal",
+      "4 tapas por persona y 20 tapas extra"
+    ],
+    targetAudience: "Ejecutivos, inquilinos Piso 20 y eventos corporativos privados",
+    suggestedPriceCents: 620000,
+    suggestedCapacity: 30,
+    businessModel: PartnerBusinessModel.PACKAGE_RESALE,
+    commissionPercent: 22,
+    minimumGuaranteeCents: 420000,
+    serviceDurationMinutes: 180,
+    staffCount: 2,
+    leadTimeDays: 7,
+    setupNeeds: "Barra auxiliar, hielo, mesa para tapas, toma electrica y acceso de carga 90 minutos antes.",
+    complianceNotes: "Requiere comprobante de seguro, permiso/aviso para servicio de alcohol y factura.",
+    menuPreview: "Rauchbier ahumada con tapas de Gouda, Brie y queso Chihuahua preparadas en sitio.",
+    cancellationPolicy: "50% de anticipo; cambios hasta 72 horas antes; garantia minima no reembolsable.",
+    preferredDates: "Jueves y viernes after office",
+    status: PartnerProposalStatus.APPROVED,
+    internalNotes: "Propuesta lista para lanzarse como experiencia de cerveza de barril y tapas."
+  };
+
   const beerTapasProposal = await prisma.partnerProposal.upsert({
     where: { id: "steinbock-cerveza-tapas" },
-    update: {},
+    update: beerTapasProposalData,
     create: {
       id: "steinbock-cerveza-tapas",
-      brandName: "Steinbock Rauchbier",
-      contactName: "Maestro cervecero invitado",
-      contactEmail: "alianzas@p20lounge.mx",
-      contactPhone: "+52 33 0000 0000",
-      type: PartnerType.BREWER,
-      title: "Catering de cerveza y tapas",
-      shortPitch: "Cata ejecutiva con barril artesanal ahumado, guia de maridaje y tapas preparadas en sitio.",
-      description:
-        "Experiencia de 3 horas para after office privado. Incluye dos personas de servicio, explicacion del estilo Rauchbier, barril de 30 litros, cuatro tapas por persona y stock extra de tapas.",
-      includes: [
-        "3 horas de servicio con dos personas",
-        "Guia sobre estilo de cerveza y maridajes",
-        "Barril de 30 litros de cerveza artesanal",
-        "4 tapas por persona y 20 tapas extra"
-      ],
-      targetAudience: "Ejecutivos, inquilinos Piso 20 y eventos corporativos privados",
-      suggestedPriceCents: 620000,
-      suggestedCapacity: 30,
-      preferredDates: "Jueves y viernes after office",
-      status: PartnerProposalStatus.APPROVED,
-      internalNotes: "Propuesta lista para lanzarse como experiencia de cerveza de barril y tapas."
+      ...beerTapasProposalData
     }
   });
 

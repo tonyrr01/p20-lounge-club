@@ -116,6 +116,14 @@ enum PartnerProposalStatus {
   REJECTED
 }
 
+enum PartnerBusinessModel {
+  COMMISSION
+  VENUE_FEE
+  REVENUE_SHARE
+  PACKAGE_RESALE
+  MINIMUM_GUARANTEE
+}
+
 model User {
   id            String        @id @default(cuid())
   name          String
@@ -263,13 +271,23 @@ model PartnerProposal {
   targetAudience      String?
   suggestedPriceCents Int?
   suggestedCapacity   Int?
-  preferredDates      String?
-  mediaUrl            String?
-  status              PartnerProposalStatus @default(SUBMITTED)
-  internalNotes       String?
-  events              Event[]
-  createdAt           DateTime              @default(now())
-  updatedAt           DateTime              @updatedAt
+  businessModel         PartnerBusinessModel @default(COMMISSION)
+  commissionPercent     Int?
+  minimumGuaranteeCents Int?
+  serviceDurationMinutes Int?
+  staffCount            Int?
+  leadTimeDays          Int?
+  setupNeeds            String?
+  complianceNotes       String?
+  menuPreview           String?
+  cancellationPolicy    String?
+  preferredDates        String?
+  mediaUrl              String?
+  status                PartnerProposalStatus @default(SUBMITTED)
+  internalNotes         String?
+  events                Event[]
+  createdAt             DateTime              @default(now())
+  updatedAt             DateTime              @updatedAt
 
   @@index([status])
   @@index([type])

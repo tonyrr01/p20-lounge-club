@@ -27,6 +27,18 @@ export const partnerProposalSchema = z.object({
   description: z.string().min(30).max(1500),
   suggestedPriceCents: optionalNumber.refine((value) => value === undefined || value >= 0),
   suggestedCapacity: optionalNumber.refine((value) => value === undefined || (value >= 1 && value <= 120)),
+  businessModel: z
+    .enum(["COMMISSION", "VENUE_FEE", "REVENUE_SHARE", "PACKAGE_RESALE", "MINIMUM_GUARANTEE"])
+    .default("COMMISSION"),
+  commissionPercent: optionalNumber.refine((value) => value === undefined || (value >= 0 && value <= 60)),
+  minimumGuaranteeCents: optionalNumber.refine((value) => value === undefined || value >= 0),
+  serviceDurationMinutes: optionalNumber.refine((value) => value === undefined || (value >= 30 && value <= 720)),
+  staffCount: optionalNumber.refine((value) => value === undefined || (value >= 1 && value <= 30)),
+  leadTimeDays: optionalNumber.refine((value) => value === undefined || (value >= 0 && value <= 120)),
+  setupNeeds: optionalText,
+  complianceNotes: optionalText,
+  menuPreview: optionalText,
+  cancellationPolicy: optionalText,
   preferredDates: optionalText,
   mediaUrl: optionalUrl
 });
