@@ -1,0 +1,350 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  SUPER_ADMIN
+  LOUNGE_ADMIN
+  STAFF
+  TENANT_P20
+  DOS_PUNTAS_EXECUTIVE
+  VIP_MEMBER
+  GUEST
+}
+
+enum MembershipType {
+  TENANT_P20
+  DOS_PUNTAS_EXECUTIVE
+  VIP_MEMBER
+  GUEST
+}
+
+enum ReservationSpace {
+  MEETING_ROOM
+  FULL_LOUNGE
+  PRIVATE_BAR
+  AFTER_OFFICE_TABLE
+}
+
+enum ReservationStatus {
+  PENDING
+  CONFIRMED
+  PAID
+  CANCELLED
+  COMPLETED
+}
+
+enum AccessStatus {
+  ACTIVE
+  USED
+  EXPIRED
+  CANCELLED
+}
+
+enum AccessPassType {
+  HOST
+  GUEST
+  STAFF
+  PROVIDER
+}
+
+enum EventStatus {
+  DRAFT
+  PUBLISHED
+  SOLD_OUT
+  CANCELLED
+  COMPLETED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+  PARTIALLY_REFUNDED
+}
+
+enum ProductType {
+  WINE
+  BEER
+  COFFEE
+  FOOD
+  SPIRIT
+  SOFT_DRINK
+  SERVICE
+  PACKAGE
+  OTHER
+}
+
+enum InventoryMovementType {
+  IN
+  OUT
+  WASTE
+  ADJUSTMENT
+  RESERVED
+  RELEASED
+}
+
+enum WineStatus {
+  AVAILABLE
+  RESERVED
+  SOLD_OUT
+}
+
+model User {
+  id            String        @id @default(cuid())
+  name          String
+  email         String        @unique
+  passwordHash  String?
+  role          UserRole      @default(GUEST)
+  membershipId  String?
+  membership    Membership?   @relation(fields: [membershipId], references: [id])
+  reservations  Reservation[] @relation("ReservationHost")
+  payments      Payment[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+model Role {
+  id          String   @id @default(cuid())
+  key         UserRole @unique
+  name        String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Membership {
+  id          String         @id @default(cuid())
+  type        MembershipType @unique
+  name        String
+  description String?
+  benefits    String[]
+  users       User[]
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+}
+
+model Reservation {
+  id          String                 @id @default(cuid())
+  code        String                 @unique
+  hostId      String?
+  host        User?                  @relation("ReservationHost", fields: [hostId], references: [id])
+  hostName    String
+  hostEmail   String
+  space       ReservationSpace
+  status      ReservationStatus      @default(PENDING)
+  startsAt    DateTime
+  endsAt      DateTime
+  guestCount  Int
+  notes       String?
+  guests      ReservationGuest[]
+  accessPasses AccessPass[]
+  services    ReservationService[]
+  payments    Payment[]
+  createdAt   DateTime               @default(now())
+  updatedAt   DateTime               @updatedAt
+
+  @@index([startsAt, endsAt])
+  @@index([status])
+}
+
+model ReservationGuest {
+  id            String      @id @default(cuid())
+  reservationId String
+  reservation   Reservation @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+  name          String
+  email         String?
+  phone         String?
+  checkedInAt   DateTime?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}
+
+model AccessPass {
+  id            String         @id @default(cuid())
+  reservationId String?
+  reservation   Reservation?   @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+  eventTicketId String?
+  eventTicket   EventTicket?   @relation(fields: [eventTicketId], references: [id], onDelete: Cascade)
+  type          AccessPassType @default(GUEST)
+  token         String         @unique
+  status        AccessStatus   @default(ACTIVE)
+  validFrom     DateTime
+  validUntil    DateTime
+  usedAt        DateTime?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  @@index([token])
+  @@index([status])
+}
+
+model Service {
+  id           String               @id @default(cuid())
+  name         String               @unique
+  description  String?
+  priceCents   Int                  @default(0)
+  active       Boolean              @default(true)
+  reservations ReservationService[]
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+}
+
+model ReservationService {
+  reservationId String
+  serviceId     String
+  quantity      Int         @default(1)
+  priceCents    Int         @default(0)
+  reservation   Reservation @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+  service       Service     @relation(fields: [serviceId], references: [id])
+
+  @@id([reservationId, serviceId])
+}
+
+model Event {
+  id          String        @id @default(cuid())
+  name        String        @unique
+  description String?
+  type        String
+  startsAt    DateTime
+  endsAt      DateTime
+  capacity    Int
+  priceCents  Int           @default(0)
+  accessType  String        @default("RESERVATION_OR_INVITE")
+  imageUrl    String?
+  status      EventStatus   @default(DRAFT)
+  tickets     EventTicket[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([startsAt])
+  @@index([status])
+}
+
+model EventTicket {
+  id          String       @id @default(cuid())
+  eventId     String
+  event       Event        @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  buyerName   String
+  buyerEmail  String?
+  quantity    Int          @default(1)
+  status      PaymentStatus @default(PENDING)
+  accessPasses AccessPass[]
+  payments    Payment[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model ProductCategory {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  products  Product[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Product {
+  id                 String              @id @default(cuid())
+  name               String
+  type               ProductType
+  categoryId         String?
+  category           ProductCategory?    @relation(fields: [categoryId], references: [id])
+  description        String?
+  costCents          Int                 @default(0)
+  priceCents         Int                 @default(0)
+  stock              Decimal             @default(0)
+  minimumStock       Decimal             @default(0)
+  unit               String              @default("piece")
+  active             Boolean             @default(true)
+  inventoryMovements InventoryMovement[]
+  wine               Wine?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+
+  @@index([type])
+}
+
+model InventoryMovement {
+  id        String                @id @default(cuid())
+  productId String
+  product   Product               @relation(fields: [productId], references: [id])
+  type      InventoryMovementType
+  quantity  Decimal
+  reason    String?
+  createdBy String?
+  createdAt DateTime              @default(now())
+}
+
+model Wine {
+  id                   String     @id @default(cuid())
+  productId            String     @unique
+  product              Product    @relation(fields: [productId], references: [id])
+  grape                String?
+  countryRegion        String?
+  vintage              Int?
+  bottlePriceCents     Int        @default(0)
+  glassPriceCents      Int?
+  suggestedTemperature String?
+  pairing              String?
+  notes                String?
+  status               WineStatus @default(AVAILABLE)
+  createdAt            DateTime   @default(now())
+  updatedAt            DateTime   @updatedAt
+}
+
+model BeerTap {
+  id              String   @id @default(cuid())
+  lineNumber      Int      @unique
+  activeBeerName  String
+  style           String?
+  brewery         String?
+  story           String?
+  priceCents      Int      @default(0)
+  kegLevelPercent Int      @default(100)
+  installedAt     DateTime @default(now())
+  rotationAt      DateTime?
+  eventId         String?
+  isBeerOfWeek    Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Payment {
+  id            String        @id @default(cuid())
+  userId        String?
+  user          User?         @relation(fields: [userId], references: [id])
+  reservationId String?
+  reservation   Reservation?  @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+  eventTicketId String?
+  eventTicket   EventTicket?  @relation(fields: [eventTicketId], references: [id], onDelete: Cascade)
+  concept       String
+  amountCents   Int
+  status        PaymentStatus @default(PENDING)
+  provider      String?
+  providerRef   String?
+  paidAt        DateTime?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+model ReportSnapshot {
+  id        String   @id @default(cuid())
+  name      String
+  period    String
+  metrics   Json
+  createdAt DateTime @default(now())
+}
+
+model Setting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
